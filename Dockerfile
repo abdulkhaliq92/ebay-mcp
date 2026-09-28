@@ -1,5 +1,8 @@
 # Build stage
-FROM node:22-alpine AS builder
+# node:22-alpine (musl libc) is avoided: pnpm@10's engine ships no native
+# binary for linux-x64-musl, so `pnpm install` fails on Alpine. node:22-slim
+# (Debian, glibc) keeps the image small without hitting that gap.
+FROM node:22-slim AS builder
 
 WORKDIR /app
 
@@ -17,7 +20,7 @@ COPY . .
 RUN pnpm run build
 
 # Production stage
-FROM node:22-alpine
+FROM node:22-slim
 
 WORKDIR /app
 
